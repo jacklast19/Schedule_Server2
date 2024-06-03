@@ -7,8 +7,8 @@ const ScheduleSchema = new mongoose.Schema({
     {
       date: String,
       shift: String
-    }
-  ]
+    }],
+  CreateUser: String
 });
 
 module.exports = mongoose.model('Schedule', ScheduleSchema);

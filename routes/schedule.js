@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
     username: req.body.username,
     department: req.body.department,
     schedule: req.body.schedule
-  });
+    });
 
   try {
     const newSchedule = await schedule.save();
