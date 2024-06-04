@@ -1,0 +1,253 @@
+#API For Schedule_Angular
+
+For Art
+Api ทั้งหมดในตอนนี้
+
+### 1. **API สำหรับจัดการตารางงาน (Schedules)**
+1. **Get all schedules**
+   - **URL**: `http://localhost:8080/schedules`
+   - **Method**: `GET`
+   - **Description**: ดึงข้อมูลตารางงานทั้งหมด
+
+2. **Create a new schedule**
+   - **URL**: `http://localhost:8080/schedules`
+   - **Method**: `POST`
+   - **Headers**: `Content-Type: application/json`
+   - **Body**:
+     ```json
+     {
+       "username": "user1",
+       "department": "IT",
+       "schedule": [
+         { "date": "2023-05-21", "shift": "morning" },
+         { "date": "2023-05-22", "shift": "evening" }
+       ]
+     }
+     ```
+   - **Description**: สร้างตารางงานใหม่
+
+3. **Get a single schedule by ID**
+   - **URL**: `http://localhost:8080/schedules/{id}`
+   - **Method**: `GET`
+   - **Description**: ดึงข้อมูลตารางงานตาม ID
+
+4. **Update a schedule by ID**
+   - **URL**: `http://localhost:8080/schedules/{id}`
+   - **Method**: `PATCH`
+   - **Headers**: `Content-Type: application/json`
+   - **Body**:
+     ```json
+     {
+       "username": "user1",
+       "department": "IT",
+       "schedule": [
+         { "date": "2023-05-21", "shift": "night" }
+       ]
+     }
+     ```
+   - **Description**: อัพเดตตารางงานตาม ID
+
+5. **Delete a schedule by ID**
+   - **URL**: `http://localhost:8080/schedules/{id}`
+   - **Method**: `DELETE`
+   - **Description**: ลบตารางงานตาม ID
+
+### 2. **API สำหรับจัดการประเภทของกะ (Type of Shifts)**
+1. **Get all types of shifts**
+   - **URL**: `http://localhost:8080/typesOfShifts`
+   - **Method**: `GET`
+   - **Description**: ดึงข้อมูลประเภทของกะทั้งหมด
+
+2. **Create a new type of shift**
+   - **URL**: `http://localhost:8080/typesOfShifts`
+   - **Method**: `POST`
+   - **Headers**: `Content-Type: application/json`
+   - **Body**:
+     ```json
+     {
+       "NameOfType": "Morning",
+       "TimeIn": "08:00",
+       "TimeOut": "16:00",
+       "LateTime": 15
+     }
+     ```
+   - **Description**: สร้างประเภทของกะใหม่
+
+3. **Get a single type of shift by ID**
+   - **URL**: `http://localhost:8080/typesOfShifts/{id}`
+   - **Method**: `GET`
+   - **Description**: ดึงข้อมูลประเภทของกะตาม ID
+
+4. **Update a type of shift by ID**
+   - **URL**: `http://localhost:8080/typesOfShifts/{id}`
+   - **Method**: `PATCH`
+   - **Headers**: `Content-Type: application/json`
+   - **Body**:
+     ```json
+     {
+       "NameOfType": "Evening",
+       "TimeIn": "14:00",
+       "TimeOut": "22:00",
+       "LateTime": 10
+     }
+     ```
+   - **Description**: อัพเดตประเภทของกะตาม ID
+
+5. **Delete a type of shift by ID**
+   - **URL**: `http://localhost:8080/typesOfShifts/{id}`
+   - **Method**: `DELETE`
+   - **Description**: ลบประเภทของกะตาม ID
+
+### 3. **API สำหรับจัดการรายละเอียดของเดือน (Detail of Months)**
+1. **Get all details of months**
+   - **URL**: `http://localhost:8080/detailsOfMonths`
+   - **Method**: `GET`
+   - **Description**: ดึงข้อมูลรายละเอียดของเดือนทั้งหมด
+
+2. **Create a new detail of month**
+   - **URL**: `http://localhost:8080/detailsOfMonths`
+   - **Method**: `POST`
+   - **Headers**: `Content-Type: application/json`
+   - **Body**:
+     ```json
+     {
+       "Month": "January",
+       "Department": "IT",
+       "NumOfMonth": 1,
+       "Status": "Active"
+     }
+     ```
+   - **Description**: สร้างรายละเอียดของเดือนใหม่
+
+3. **Get a single detail of month by ID**
+   - **URL**: `http://localhost:8080/detailsOfMonths/{id}`
+   - **Method**: `GET`
+   - **Description**: ดึงข้อมูลรายละเอียดของเดือนตาม ID
+
+4. **Update a detail of month by ID**
+   - **URL**: `http://localhost:8080/detailsOfMonths/{id}`
+   - **Method**: `PATCH`
+   - **Headers**: `Content-Type: application/json`
+   - **Body**:
+     ```json
+     {
+       "Month": "February",
+       "Department": "HR",
+       "NumOfMonth": 2,
+       "Status": "Inactive"
+     }
+     ```
+   - **Description**: อัพเดตรายละเอียดของเดือนตาม ID
+
+5. **Delete a detail of month by ID**
+   - **URL**: `http://localhost:8080/detailsOfMonths/{id}`
+   - **Method**: `DELETE`
+   - **Description**: ลบรายละเอียดของเดือนตาม ID
+
+### 4. **API สำหรับจัดการบทบาท (Roles)**
+1. **Get all roles**
+   - **URL**: `http://localhost:8080/roles`
+   - **Method**: `GET`
+   - **Description**: ดึงข้อมูลบทบาททั้งหมด
+
+2. **Create new roles (single or multiple)**
+   - **URL**: `http://localhost:8080/roles`
+   - **Method**: `POST`
+   - **Headers**: `Content-Type: application/json`
+   - **Body**:
+     ```json
+     {
+       "roles": [
+         { "role": "IT" },
+         { "role": "HR" },
+         { "role": "Board" },
+         { "role": "Head" },
+         { "role": "Employee" }
+       ]
+     }
+     ```
+   - **Description**: สร้างบทบาทใหม่ (หลายบทบาทในคำขอเดียว)
+
+3. **Get a single role by ID**
+   - **URL**: `http://localhost:8080/roles/{id}`
+   - **Method**: `GET`
+   - **Description**: ดึงข้อมูลบทบาทตาม ID
+
+4. **Update a role by ID**
+   - **URL**: `http://localhost:8080/roles/{id}`
+   - **Method**: `PATCH`
+   - **Headers**: `Content-Type: application/json`
+   - **Body**:
+     ```json
+     {
+       "role": "NewRole"
+     }
+     ```
+   - **Description**: อัพเดตบทบาทตาม ID
+
+5. **Delete a role by ID**
+   - **URL**: `http://localhost:8080/roles/{id}`
+   - **Method**: `DELETE`
+   - **Description**: ลบบทบาทตาม ID
+
+### 5. **API สำหรับจัดการผู้ใช้ (Users)**
+1. **Register a new user**
+   - **URL**: `http://localhost:8080/users/register`
+   - **Method**: `POST`
+   - **Headers**: `Content-Type: application/json`
+   - **Body**:
+     ```json
+     {
+       "username": "user1",
+       "firstName": "John",
+       "lastName": "Doe",
+       "password": "password123",
+       "department": "IT"
+     }
+     ```
+   - **Description**: ลงทะเบียนผู้ใช้ใหม่ โดยค่าเริ่มต้น `status` จะเป็น `pending`
+
+2. **Update a user**
+   - **URL**: `http://localhost:8080/users/update/{id}`
+   - **Method**: `PATCH`
+   - **Headers**: `Content-Type: application/json`
+   - **Body**:
+     ```json
+     {
+       "username": "newuser1",
+       "password": "newpassword123",
+       "email": "john.doe@example.com",
+       "firstName": "John",
+       "lastName": "Doe",
+       "department": "HR",
+       "role": "HR",
+       "status": "active"
+     }
+     ```
+   - **Description**: อัพเดตข้อมูลผู้ใช้ตาม ID
+
+3. **Get all users**
+   - **URL**: `http://localhost:8080/users`
+   - **Method**: `GET`
+   - **Description**: ดึงข้อมูลผู้ใช้ทั้งหมด
+
+4. **Get users with status pending**
+   - **URL**: `http://localhost:8080/users/pending`
+   - **Method**: `GET`
+   - **Description**: ดึงข้อมูลผู้ใช้
+
+ที่มีสถานะเป็น `pending`
+
+5. **Get a single user by ID**
+   - **URL**: `http://localhost:8080/users/{id}`
+   - **Method**: `GET`
+   - **Description**: ดึงข้อมูลผู้ใช้ตาม ID
+
+6. **Delete a user by ID**
+   - **URL**: `http://localhost:8080/users/{id}`
+   - **Method**: `DELETE`
+   - **Description**: ลบผู้ใช้ตาม ID
+
+### สรุป
+
+API การจัดการตารางงาน, ประเภทของกะ, รายละเอียดของเดือน, บทบาท, และผู้ใช้. 
