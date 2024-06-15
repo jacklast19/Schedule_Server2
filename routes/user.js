@@ -31,6 +31,7 @@ router.patch('/update/:id', async (req, res) => {
     if (department != null) user.department = department;
     if (role != null) user.role = role;
     if (status != null) user.status = status;
+    if (hipId != null) user.hipId = hipId;
     
     await user.save();
     res.json({ message: 'User updated successfully', user });

@@ -1,0 +1,135 @@
+### การออกแบบฐานข้อมูล
+
+ฐานข้อมูลที่ใช้คือ MongoDB ซึ่งเป็นฐานข้อมูลแบบ NoSQL จะใช้โครงสร้างแบบ Document สำหรับการจัดเก็บข้อมูล โดยแต่ละเอกสาร (Document) จะถูกจัดเก็บใน Collection ที่เหมาะสม
+
+#### 1. **Collection Users**
+เก็บข้อมูลผู้ใช้ รวมถึงบทบาทและสถานะ
+
+```json
+{
+  "_id": "ObjectId",
+  "username": "string",
+  "password": "string",
+  "email": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "role": "string", // IT, HR, Board, Head, Employee
+  "status": "string", // active, pending, disabled
+  "createdAt": "date",
+  "updatedAt": "date"
+}
+```
+
+#### 2. **Collection Roles**
+เก็บข้อมูลบทบาทและสิทธิ์การเข้าถึง
+
+```json
+{
+  "_id": "ObjectId",
+  "role": "string", // IT, HR, Board, Head, Employee
+  "permissions": {
+    "read": ["array of resource names"],
+    "write": ["array of resource names"],
+    "delete": ["array of resource names"]
+  }
+}
+```
+
+#### 3. **Collection Documents**
+เก็บข้อมูลเอกสารและลิงก์ไปยังที่เก็บไฟล์
+
+```json
+{
+  "_id": "ObjectId",
+  "title": "string",
+  "description": "string",
+  "fileUrl": "string",
+  "fileType": "string", // pdf, csv, excel, text, image
+  "ownerId": "ObjectId", // reference to Users collection
+  "createdAt": "date",
+  "updatedAt": "date",
+  "status": "string" // pending, approved, rejected
+}
+```
+
+#### 4. **Collection WorkSchedules**
+เก็บข้อมูลตารางการทำงาน
+
+```json
+{
+  "_id": "ObjectId",
+  "departmentId": "ObjectId", // reference to Departments collection
+  "employeeId": "ObjectId", // reference to Users collection
+  "shiftType": "string",
+  "startDate": "date",
+  "endDate": "date",
+  "status": "string" // pending, approved, rejected
+}
+```
+
+#### 5. **Collection Departments**
+เก็บข้อมูลแผนก
+
+```json
+{
+  "_id": "ObjectId",
+  "name": "string",
+  "headId": "ObjectId", // reference to Users collection
+  "createdAt": "date",
+  "updatedAt": "date"
+}
+```
+
+#### 6. **Collection Notifications**
+เก็บข้อมูลการแจ้งเตือน
+
+```json
+{
+  "_id": "ObjectId",
+  "userId": "ObjectId", // reference to Users collection
+  "message": "string",
+  "read": "boolean",
+  "createdAt": "date"
+}
+```
+
+#### 7. **Collection LeaveRequests**
+เก็บข้อมูลคำขอลางาน
+
+```json
+{
+  "_id": "ObjectId",
+  "employeeId": "ObjectId", // reference to Users collection
+  "startDate": "date",
+  "endDate": "date",
+  "reason": "string",
+  "status": "string", // pending, approved, rejected
+  "createdAt": "date",
+  "updatedAt": "date"
+}
+```
+
+#### 8. **Collection OvertimeRecords**
+เก็บข้อมูลบันทึกการทำงานล่วงเวลา
+
+```json
+{
+  "_id": "ObjectId",
+  "employeeId": "ObjectId", // reference to Users collection
+  "date": "date",
+  "hours": "number",
+  "approvedBy": "ObjectId", // reference to Users collection
+  "createdAt": "date",
+  "updatedAt": "date"
+}
+```
+
+### ความสัมพันธ์ระหว่าง Collection
+- `Users` กับ `Roles`: ผู้ใช้แต่ละคนจะมีบทบาทที่กำหนดในฟิลด์ `role` ซึ่งอ้างอิงจาก `Roles`
+- `Users` กับ `Documents`: ผู้ใช้แต่ละคนสามารถเป็นเจ้าของเอกสารหลายเอกสาร
+- `Users` กับ `WorkSchedules`: ผู้ใช้แต่ละคนสามารถมีตารางการทำงานหลายรายการ
+- `Users` กับ `Departments`: ผู้ใช้ที่เป็นหัวหน้าแผนกจะถูกอ้างอิงจากแผนกในฟิลด์ `headId`
+- `Users` กับ `Notifications`: ผู้ใช้แต่ละคนจะได้รับการแจ้งเตือนหลายรายการ
+- `Users` กับ `LeaveRequests`: ผู้ใช้แต่ละคนสามารถมีคำขอลางานหลายรายการ
+- `Users` กับ `OvertimeRecords`: ผู้ใช้แต่ละคนสามารถมีบันทึกการทำงานล่วงเวลาหลายรายการ
+

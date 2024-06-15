@@ -11,7 +11,8 @@ const UserSchema = new mongoose.Schema({
   role: { type: String, enum: ['IT', 'HR', 'Board', 'Head', 'Employee'], default: 'Employee' },
   status: { type: String, enum: ['active', 'pending', 'disabled', 'inactive'], default: 'pending' },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
+  hipId: { type: String } // เพิ่มฟิลด์ hipId
 });
 
 UserSchema.pre('save', async function (next) {
