@@ -49,6 +49,16 @@ router.get('/pending', async (req, res) => {
   }
 });
 
+// ดึงข้อมูลผู้ใช้ที่อยู่ในสถานะ active
+router.get('/active', async (req, res) => {
+  try {
+    const users = await User.find({ status: 'active' });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // ดึงข้อมูลผู้ใช้ทั้งหมด
 router.get('/', async (req, res) => {
   try {
@@ -97,6 +107,22 @@ router.get('/user/:username', async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+});
+
+// Find users by first name
+router.get('/users', (req, res) => {
+  const firstname = req.query.firstname;
+  const condition = firstname ? { firstName: { $regex: new RegExp(`^${firstname}$`, 'i') } } : {};
+
+  userAll.find(condition)
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving users."
+      });
+    });
 });
 
 module.exports = router;

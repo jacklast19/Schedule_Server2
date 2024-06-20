@@ -42,21 +42,21 @@ exports.create = (req, res) => {
     });
 };
 
-// Retrieve all UserAlls from the database.
-exports.findAll = (req, res) => {
+// Find users by first name
+router.get('/users', (req, res) => {
     const firstname = req.query.firstname;
-    var condition = firstname ? { firstname:  RegExp(firstname), $option: "i" }  : {};
-    userAll.find(condition).then(data => {
+    const condition = firstname ? { firstName: { $regex: new RegExp(`^${firstname}$`, 'i') } } : {};
+  
+    userAll.find(condition)
+      .then(data => {
         res.send(data);
-    })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while retrieving UserAlls."
-            });
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: err.message || "Some error occurred while retrieving users."
         });
-
-};
+      });
+  });
 
 // Find a single UserAll with an id
 exports.findOne = (req, res) => {
