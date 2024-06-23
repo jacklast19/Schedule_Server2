@@ -1,83 +1,77 @@
 const express = require('express');
 const router = express.Router();
-const TypeOfShift = require('../models/TypeOfShift');
+const TypeOfShift = require('../models/typeOfShift');
 
-// Get all types of shifts
+// Create TypeOfShift
+router.post('/', async (req, res) => {
+  const { nameOfType, timeIn, timeOut, lateTime, detail } = req.body;
+
+  try {
+    const typeOfShift = new TypeOfShift({
+      nameOfType,
+      timeIn,
+      timeOut,
+      lateTime,
+      detail
+    });
+    await typeOfShift.save();
+    res.status(201).json(typeOfShift);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Get all TypeOfShifts
 router.get('/', async (req, res) => {
   try {
-    const typesOfShifts = await TypeOfShift.find();
-    res.json(typesOfShifts);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const typeOfShifts = await TypeOfShift.find();
+    res.json(typeOfShifts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
-// Create a new type of shift
-router.post('/', async (req, res) => {
-  const typeOfShift = new TypeOfShift({
-    NameOfType: req.body.NameOfType,
-    TimeIn: req.body.TimeIn,
-    TimeOut: req.body.TimeOut,
-    LateTime: req.body.LateTime
-  });
+// Get TypeOfShift by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const typeOfShift = await TypeOfShift.findById(req.params.id);
+    if (!typeOfShift) return res.status(404).json({ message: 'TypeOfShift not found' });
+    res.json(typeOfShift);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update TypeOfShift
+router.put('/:id', async (req, res) => {
+  const { nameOfType, timeIn, timeOut, lateTime, detail } = req.body;
 
   try {
-    const newTypeOfShift = await typeOfShift.save();
-    res.status(201).json(newTypeOfShift);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+    const typeOfShift = await TypeOfShift.findById(req.params.id);
+    if (!typeOfShift) return res.status(404).json({ message: 'TypeOfShift not found' });
 
-// Get a single type of shift by ID
-router.get('/:id', getTypeOfShift, (req, res) => {
-  res.json(res.typeOfShift);
-});
+    typeOfShift.nameOfType = nameOfType || typeOfShift.nameOfType;
+    typeOfShift.timeIn = timeIn || typeOfShift.timeIn;
+    typeOfShift.timeOut = timeOut || typeOfShift.timeOut;
+    typeOfShift.lateTime = lateTime || typeOfShift.lateTime;
+    typeOfShift.detail = detail || typeOfShift.detail;
 
-// Update a type of shift by ID
-router.patch('/:id', getTypeOfShift, async (req, res) => {
-  if (req.body.NameOfType != null) {
-    res.typeOfShift.NameOfType = req.body.NameOfType;
-  }
-  if (req.body.TimeIn != null) {
-    res.typeOfShift.TimeIn = req.body.TimeIn;
-  }
-  if (req.body.TimeOut != null) {
-    res.typeOfShift.TimeOut = req.body.TimeOut;
-  }
-  if (req.body.LateTime != null) {
-    res.typeOfShift.LateTime = req.body.LateTime;
-  }
-  try {
-    const updatedTypeOfShift = await res.typeOfShift.save();
+    const updatedTypeOfShift = await typeOfShift.save();
     res.json(updatedTypeOfShift);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 });
 
-// Delete a type of shift by ID
-router.delete('/:id', getTypeOfShift, async (req, res) => {
+// Delete TypeOfShift
+router.delete('/:id', async (req, res) => {
   try {
-    await res.typeOfShift.remove();
-    res.json({ message: 'Deleted TypeOfShift' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const typeOfShift = await TypeOfShift.findByIdAndDelete(req.params.id);
+    if (!typeOfShift) return res.status(404).json({ message: 'TypeOfShift not found' });
+    res.json({ message: 'TypeOfShift deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
-
-async function getTypeOfShift(req, res, next) {
-  let typeOfShift;
-  try {
-    typeOfShift = await TypeOfShift.findById(req.params.id);
-    if (typeOfShift == null) {
-      return res.status(404).json({ message: 'Cannot find type of shift' });
-    }
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
-  }
-  res.typeOfShift = typeOfShift;
-  next();
-}
 
 module.exports = router;

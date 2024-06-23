@@ -16,7 +16,7 @@ db.once('open', () => {
 });
 
 const scheduleRouter = require('./routes/schedule');
-const typeOfShiftRouter = require('./routes/typeOfShift');
+const typeOfShiftRouter = require('./routes/TypeOfshift');
 const detailOfMonthRouter = require('./routes/detailOfMonth'); 
 const departmentRouter = require('./routes/department');
 const roleRouter = require('./routes/role'); 
@@ -24,6 +24,7 @@ const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth'); 
 const otRouter = require('./routes/ot'); 
 const leaveRouter = require('./routes/leave');
+const documentRouter = require('./routes/document');
 
 app.use('/schedules', scheduleRouter);
 app.use('/typesOfShifts', typeOfShiftRouter);
@@ -34,6 +35,7 @@ app.use('/users', userRouter);
 app.use('/auth', authRouter); 
 app.use('/ot', otRouter);
 app.use('/leaves', leaveRouter);
+app.use('/documents', documentRouter);
 
 app.listen(8080, () => {
   console.log('Server started on port 8080');

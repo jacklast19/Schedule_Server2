@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 
 const TypeOfShiftSchema = new mongoose.Schema({
-  NameOfType: { type: String, required: true },
-  TimeIn: { type: String, required: true },
-  TimeOut: { type: String, required: true },
-  LateTime: { type: Number, required: true }
+  nameOfType: { type: String, required: true },
+  timeIn: { type: String, required: true },
+  timeOut: { type: String, required: true },
+  lateTime: { type: Number, required: true },
+  detail: { type: String }  // เพิ่มฟิลด์ detail
 });
 
-module.exports = mongoose.model('TypeOfShift', TypeOfShiftSchema);
+const TypeOfShift = mongoose.model('TypeOfShift', TypeOfShiftSchema);
+module.exports = TypeOfShift;
