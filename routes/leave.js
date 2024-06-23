@@ -1,6 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const Leave = require('../models/leave');
+
+// Set up multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage: storage });
 
 // Get all leave records
 router.get('/', async (req, res) => {
@@ -13,9 +25,12 @@ router.get('/', async (req, res) => {
 });
 
 // Create a new leave record
-router.post('/', async (req, res) => {
-  const { userId, startDate, endDate, reason, status, type, medicalCertificate, attachment } = req.body;
-  const leaveRecord = new Leave({ userId, startDate, endDate, reason, status, type, medicalCertificate, attachment });
+router.post('/', upload.fields([{ name: 'medicalCertificate', maxCount: 1 }, { name: 'attachments', maxCount: 10 }]), async (req, res) => {
+  const { userId, startDate, endDate, reason, status, leaveType, approver, department } = req.body;
+  const medicalCertificate = req.files && req.files['medicalCertificate'] ? req.files['medicalCertificate'][0].path : null;
+  const attachments = req.files && req.files['attachments'] ? req.files['attachments'].map(file => file.path) : [];
+
+  const leaveRecord = new Leave({ userId, startDate, endDate, reason, status, leaveType, approver, department, medicalCertificate, attachments });
 
   try {
     const newLeaveRecord = await leaveRecord.save();
@@ -31,16 +46,23 @@ router.get('/:id', getLeaveRecord, (req, res) => {
 });
 
 // Update a leave record by ID
-router.patch('/:id', getLeaveRecord, async (req, res) => {
-  const { userId, startDate, endDate, reason, status, type, medicalCertificate, attachment } = req.body;
+router.patch('/:id', upload.fields([{ name: 'medicalCertificate', maxCount: 1 }, { name: 'attachments', maxCount: 10 }]), async (req, res) => {
+  const { userId, startDate, endDate, reason, status, leaveType, approver, department } = req.body;
+  const medicalCertificate = req.files && req.files['medicalCertificate'] ? req.files['medicalCertificate'][0].path : null;
+  const attachments = req.files && req.files['attachments'] ? req.files['attachments'].map(file => file.path) : [];
+
   if (userId != null) res.leaveRecord.userId = userId;
   if (startDate != null) res.leaveRecord.startDate = startDate;
   if (endDate != null) res.leaveRecord.endDate = endDate;
   if (reason != null) res.leaveRecord.reason = reason;
   if (status != null) res.leaveRecord.status = status;
-  if (type != null) res.leaveRecord.type = type;
+  if (leaveType != null) res.leaveRecord.leaveType = leaveType;
+  if (approver != null) res.leaveRecord.approver = approver;
+  if (department != null) res.leaveRecord.department = department;
   if (medicalCertificate != null) res.leaveRecord.medicalCertificate = medicalCertificate;
-  if (attachment != null) res.leaveRecord.attachment = attachment;
+  if (attachments.length > 0) res.leaveRecord.attachments = attachments;
+
+  res.leaveRecord.updatedAt = Date.now();
 
   try {
     const updatedLeaveRecord = await res.leaveRecord.save();
