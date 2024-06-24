@@ -8,5 +8,6 @@ const TypeOfShiftSchema = new mongoose.Schema({
   detail: { type: String }  // เพิ่มฟิลด์ detail
 });
 
+
 const TypeOfShift = mongoose.model('TypeOfShift', TypeOfShiftSchema);
 module.exports = TypeOfShift;

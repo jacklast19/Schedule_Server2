@@ -5,20 +5,23 @@ const cors = require('cors');
 const app = express();
 
 app.use(bodyParser.json());
-app.use(cors());
 
 // CORS middleware configuration
 const corsOptions = {
-  origin: 'http://localhost:8100',  // Allow requests from this origin
-  credentials:true,            //access-control-allow-credentials:true
-  optionSuccessStatus:200 // Allow sending cookies and authentication headers
+  origin: ['http://localhost:8100', 'http://localhost:8081'], // Allow requests from these origins
+  credentials: true,            // Allow sending cookies and authentication headers
+  optionSuccessStatus: 200      // For legacy browser support
 };
 
 app.use(cors(corsOptions));
 
 // Middleware to allow cross-origin requests
 app.use(function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:8100'); // Replace with your frontend's URL
+  const allowedOrigins = ['http://localhost:8100', 'http://localhost:8081'];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin); // Set the origin dynamically
+  }
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   res.header('Access-Control-Allow-Credentials', 'true'); // Allow cookies, authorization headers with credentials
@@ -48,6 +51,7 @@ const authRouter = require('./routes/auth');
 const otRouter = require('./routes/ot'); 
 const leaveRouter = require('./routes/leave');
 const documentRouter = require('./routes/document');
+const shiftSwapRouter = require('./routes/shiftSwap');
 
 app.use('/schedules', scheduleRouter);
 app.use('/typesOfShifts', typeOfShiftRouter);
@@ -59,10 +63,7 @@ app.use('/auth', authRouter);
 app.use('/ot', otRouter);
 app.use('/leaves', leaveRouter);
 app.use('/documents', documentRouter);
-
-// app.listen(8080, () => {
-//   console.log('Server started on port 8080');
-// });
+app.use('/shiftSwaps', shiftSwapRouter);
 
 // Start the server
 const port = 8080;
