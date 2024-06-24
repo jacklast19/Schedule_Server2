@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const TypeOfShift = require('../models/typeOfShift');
+const TypeOfShift = require('../models/TypeOfShift');
 
 // Create TypeOfShift
 router.post('/', async (req, res) => {
