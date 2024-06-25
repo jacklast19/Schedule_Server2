@@ -52,6 +52,7 @@ const otRouter = require('./routes/ot');
 const leaveRouter = require('./routes/leave');
 const documentRouter = require('./routes/document');
 const shiftSwapRouter = require('./routes/shiftSwap');
+const leaveBalanceRouter = require('./routes/leaveBalance');
 
 app.use('/schedules', scheduleRouter);
 app.use('/typesOfShifts', typeOfShiftRouter);
@@ -64,6 +65,7 @@ app.use('/ot', otRouter);
 app.use('/leaves', leaveRouter);
 app.use('/documents', documentRouter);
 app.use('/shiftSwaps', shiftSwapRouter);
+app.use('/leaveBalances', leaveBalanceRouter);
 
 // Start the server
 const port = 8080;
