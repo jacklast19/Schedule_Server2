@@ -62,7 +62,9 @@ router.patch('/:id/approve', getShiftSwap, async (req, res) => {
     if (!approver) {
       return res.status(404).json({ message: 'Approver not found' });
     }
-
+    if(userId.role ==='Head'){
+      getHead;
+    }
     approver.status = status;
     approver.date = Date.now();
 
@@ -106,10 +108,13 @@ async function getShiftSwap(req, res, next) {
   next();
 }
 
-// Additional functions to get approvers
-async function getHead(userId) {
+async function getUser(userId) {
   // Implement logic to get the head of the department for the given userId
   return null; // Return null as default
+}
+// Additional functions to get approvers
+async function getHead(userId) {
+  return shiftSwaps.approvers.status = "approved"; // Return null as default
 }
 
 async function getHR() {
