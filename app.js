@@ -79,6 +79,7 @@ const leaveRouter = require('./routes/leave');
 const documentRouter = require('./routes/document');
 const shiftSwapRouter = require('./routes/shiftSwap');
 const leaveBalanceRouter = require('./routes/leaveBalance');
+const approvalRouter = require('./routes/approvals')
 
 // Use routers
 app.use('/schedules', scheduleRouter);
@@ -93,6 +94,7 @@ app.use('/leaves', leaveRouter);
 app.use('/documents', documentRouter);
 app.use('/shiftSwaps', shiftSwapRouter);
 app.use('/leaveBalances', leaveBalanceRouter);
+app.use('/approvals',approvalRouter);
 
 // Start the server
 const port = 8080;

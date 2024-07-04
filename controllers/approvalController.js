@@ -1,6 +1,6 @@
 const Approval = require('../models/Approval');
-const Document = require('../models/Document');
-const Leave = require('../models/leave');
+const Document = require('../models/document');
+const Leave = require('../models/Leave');
 const ShiftSwap = require('../models/ShiftSwap');
 
 // ดึงรายการที่รอการอนุมัติทั้งหมด
@@ -33,6 +33,9 @@ exports.approveApproval = async (req, res) => {
     }
     if (approval.leaveRequestId) {
       await LeaveRequest.findByIdAndUpdate(approval.leaveRequestId, { status: 'approved' });
+    }
+    if (approval.ShiftSwapId){
+      await ShiftSwap.findByIdAndUpdate(approval.ShiftSwapId,{status:'approved'} );
     }
 
     res.json(approval);
