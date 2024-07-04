@@ -133,3 +133,20 @@
 - `Users` กับ `LeaveRequests`: ผู้ใช้แต่ละคนสามารถมีคำขอลางานหลายรายการ
 - `Users` กับ `OvertimeRecords`: ผู้ใช้แต่ละคนสามารถมีบันทึกการทำงานล่วงเวลาหลายรายการ
 
+{"_id":{"$oid":"667911155d94e31e13f24ba0"},
+"requester":{"$oid":"665f1bab39eec04615817e12"},
+"requesterDate":{"$date":"2024-02-05T17:00:00.000Z"},
+"requesterShiftType":"unknown",
+"requestee":{"$oid":"666ff7053f0ee44ded1a1180"},
+"requesteeDate":{"$date":"2024-02-05T17:00:00.000Z"},
+"requesteeShiftType":"unknown",
+"details":"ต้องการเปลี่ยนเวรเนื่องจากมีธุระสำคัญ",
+"approvers":[
+  {"role":"User","user":{"$oid":"666ff7053f0ee44ded1a1180"},"status":"pending","_id":{"$oid":"667911155d94e31e13f24ba1"}},
+  {"role":"Head","user":null,"status":"pending","_id":{"$oid":"667911155d94e31e13f24ba2"}},
+  {"role":"HR","user":null,"status":"pending","_id":{"$oid":"667911155d94e31e13f24ba3"}},
+  {"role":"Board","user":null,"status":"pending","_id":{"$oid":"667911155d94e31e13f24ba4"}}],
+"status":"pending",
+"createdAt":{"$date":"2024-06-24T06:24:21.709Z"},
+"updatedAt":{"$date":"2024-06-24T06:24:21.709Z"},
+"__v":0}

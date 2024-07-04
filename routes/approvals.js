@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/auth');
+const auth = require('../route/auth');
 const approvalController = require('../controllers/approvalController');
 
 // GET /approvals - ดึงรายการที่รอการอนุมัติทั้งหมด

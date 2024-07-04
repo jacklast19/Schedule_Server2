@@ -6,7 +6,8 @@ const ScheduleSchema = new mongoose.Schema({
   schedule: [
     {
       date: String,
-      shift: String
+      shift: String,
+      
     }],
   CreateUser: String
 });

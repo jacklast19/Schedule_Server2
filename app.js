@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const { MongoClient, ServerApiVersion } = require('mongodb');
+
 const app = express();
 
 app.use(bodyParser.json());
@@ -12,8 +14,6 @@ const corsOptions = {
   credentials: true,            // Allow sending cookies and authentication headers
   optionSuccessStatus: 200      // For legacy browser support
 };
-
-app.use(cors(corsOptions));
 
 // Middleware to allow cross-origin requests
 app.use(function(req, res, next) {
@@ -33,14 +33,40 @@ app.use(function(req, res, next) {
   }
 });
 
+// MongoDB connection using Mongoose
 mongoose.connect('mongodb+srv://admin:r3Kaz63Dl0fBMaxe@cluster0.jkjcwvg.mongodb.net/ScheduleDB', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
-  console.log('Connected to MongoDB');
+  console.log('Connected to MongoDB using Mongoose');
 });
 
+// MongoDB connection using MongoClient
+const uri = "mongodb+srv://admin:r3Kaz63Dl0fBMaxe@cluster0.jkjcwvg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+async function run() {
+  try {
+    // Connect the client to the server
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB using MongoClient!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
+
+// Import routers
 const scheduleRouter = require('./routes/schedule');
 const typeOfShiftRouter = require('./routes/TypeOfshift');
 const detailOfMonthRouter = require('./routes/detailOfMonth'); 
@@ -54,6 +80,7 @@ const documentRouter = require('./routes/document');
 const shiftSwapRouter = require('./routes/shiftSwap');
 const leaveBalanceRouter = require('./routes/leaveBalance');
 
+// Use routers
 app.use('/schedules', scheduleRouter);
 app.use('/typesOfShifts', typeOfShiftRouter);
 app.use('/detailsOfMonths', detailOfMonthRouter);

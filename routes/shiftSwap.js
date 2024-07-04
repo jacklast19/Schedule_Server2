@@ -62,9 +62,9 @@ router.patch('/:id/approve', getShiftSwap, async (req, res) => {
     if (!approver) {
       return res.status(404).json({ message: 'Approver not found' });
     }
-    if(userId.role ==='Head'){
+    /*if(userId.role ==='Head'){
       getHead;
-    }
+    }*/
     approver.status = status;
     approver.date = Date.now();
 
