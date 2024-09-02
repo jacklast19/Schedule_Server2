@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const Document = require('../models/document');
+const authenticateToken = require('../middleware/authenticateToken');
+const authorizeRoles = require('../middleware/authorizeRoles');
+
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -15,7 +18,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Create Document
-router.post('/', upload.single('file'), async (req, res) => {
+router.post('/', upload.single('file'),authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), async (req, res) => {
   const { userId, title, detail, approvers, department } = req.body;
   const file = req.file ? req.file.path : null;
 
@@ -40,7 +43,7 @@ router.post('/', upload.single('file'), async (req, res) => {
 });
 
 // Get all Documents
-router.get('/', async (req, res) => {
+router.get('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), async (req, res) => {
   try {
     const documents = await Document.find().populate('userId', 'username');
     res.json(documents);
@@ -50,7 +53,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get Document by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), async (req, res) => {
   try {
     const document = await Document.findById(req.params.id).populate('userId', 'username');
     if (!document) return res.status(404).json({ message: 'Document not found' });
@@ -61,7 +64,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update Document
-router.put('/:id', upload.single('file'), async (req, res) => {
+router.put('/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), upload.single('file'), async (req, res) => {
   const { title, detail, approvers, department } = req.body;
   const file = req.file ? req.file.path : null;
 
@@ -83,7 +86,7 @@ router.put('/:id', upload.single('file'), async (req, res) => {
 });
 
 // Delete Document
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), async (req, res) => {
   try {
     const document = await Document.findByIdAndDelete(req.params.id);
     if (!document) return res.status(404).json({ message: 'Document not found' });

@@ -3,19 +3,18 @@ const mongoose = require('mongoose');
 const ShiftSwapSchema = new mongoose.Schema({
   requester: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   requesterDate: { type: Date, required: true },
-  requesterShiftType: { type: String, default: 'unknown' }, // เปลี่ยนเป็นค่า default
+  requesterShiftType: { type: String, default: 'unknown' },
   requestee: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   requesteeDate: { type: Date, required: true },
-  requesteeShiftType: { type: String, default: 'unknown' }, // เปลี่ยนเป็นค่า default
+  requesteeShiftType: { type: String, default: 'unknown' },
   details: { type: String, required: true },
-  approvers: [
-    {
-      role: { type: String, required: true },
-      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // เปลี่ยนเป็นค่า default
-      status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-      date: { type: Date }
-    }
-  ],
+  approvers: {
+    type: new mongoose.Schema({
+      head: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      hr: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      board: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    }, { _id: false })
+  },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

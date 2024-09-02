@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+require('dotenv').config();
 
 app.use(bodyParser.json());
 
@@ -33,7 +34,7 @@ app.use(function(req, res, next) {
   }
 });
 
-mongoose.connect('mongodb+srv://admin:r3Kaz63Dl0fBMaxe@cluster0.jkjcwvg.mongodb.net/ScheduleDB', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -53,6 +54,7 @@ const leaveRouter = require('./routes/leave');
 const documentRouter = require('./routes/document');
 const shiftSwapRouter = require('./routes/shiftSwap');
 const leaveBalanceRouter = require('./routes/leaveBalance');
+const attendanceRouter = require('./routes/attendance'); 
 
 app.use('/schedules', scheduleRouter);
 app.use('/typesOfShifts', typeOfShiftRouter);
@@ -66,9 +68,11 @@ app.use('/leaves', leaveRouter);
 app.use('/documents', documentRouter);
 app.use('/shiftSwaps', shiftSwapRouter);
 app.use('/leaveBalances', leaveBalanceRouter);
+app.use('/hip-attendances', attendanceRouter);
+
 
 // Start the server
-const port = 8080;
+const port = process.env.port;
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

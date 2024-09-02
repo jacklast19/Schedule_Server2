@@ -3,22 +3,22 @@ const router = express.Router();
 const ShiftSwap = require('../models/ShiftSwap');
 const User = require('../models/user');
 const Schedule = require('../models/schedule');
+const authenticateToken = require('../middleware/authenticateToken');
+const authorizeRoles = require('../middleware/authorizeRoles');
 
 // Create a new shift swap request
 router.post('/', async (req, res) => {
   const { requester, requesterDate, requestee, requesteeDate, details } = req.body;
 
   try {
-    // Fetch shift types for requester and requestee
-    const requesterShiftType = 'unknown'; // or fetch from Schedule if needed
-    const requesteeShiftType = 'unknown'; // or fetch from Schedule if needed
+    const requesterShiftType = 'unknown';
+    const requesteeShiftType = 'unknown';
 
-    const approvers = [
-      { role: 'User', user: requestee, status: 'pending' },
-      { role: 'Head', user: await getHead(requestee), status: 'pending' },
-      { role: 'HR', user: await getHR(), status: 'pending' },
-      { role: 'Board', user: await getBoard(), status: 'pending' }
-    ];
+    const approvers = {
+      head: await getHead(requestee),
+      hr: await getHR(),
+      board: await getBoard()
+    };
 
     const shiftSwap = new ShiftSwap({
       requester,
@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
 // Get all shift swap requests
 router.get('/', async (req, res) => {
   try {
-    const shiftSwaps = await ShiftSwap.find().populate('requester requestee approvers.user');
+    const shiftSwaps = await ShiftSwap.find().populate('requester requestee approvers.head approvers.hr approvers.board');
     res.json(shiftSwaps);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -53,31 +53,89 @@ router.get('/:id', getShiftSwap, (req, res) => {
   res.json(res.shiftSwap);
 });
 
-// Update a shift swap request by ID (approval status)
-router.patch('/:id/approve', getShiftSwap, async (req, res) => {
-  const { userId, status } = req.body;
-
+// Approve shift swap request by Requestee (User)
+router.patch('/:id/approve/requestee', async (req, res) => {
   try {
-    const approver = res.shiftSwap.approvers.find(approver => approver.user.toString() === userId);
-    if (!approver) {
-      return res.status(404).json({ message: 'Approver not found' });
-    }
-    if(userId.role ==='Head'){
-      getHead;
-    }
-    approver.status = status;
-    approver.date = Date.now();
-
-    if (res.shiftSwap.approvers.every(approver => approver.status === 'approved')) {
-      res.shiftSwap.status = 'approved';
-    } else if (approver.status === 'rejected') {
-      res.shiftSwap.status = 'rejected';
+    const shiftSwap = await ShiftSwap.findById(req.params.id);
+    if (!shiftSwap) {
+      return res.status(404).json({ message: 'Shift swap request not found' });
     }
 
-    res.shiftSwap.updatedAt = Date.now();
-    await res.shiftSwap.save();
+    if (shiftSwap.requestee.toString() !== req.body.approverId) {
+      return res.status(403).json({ message: 'You are not authorized to approve this request' });
+    }
 
-    res.json(res.shiftSwap);
+    shiftSwap.approvers.head = req.body.approverId;
+
+    shiftSwap.updatedAt = Date.now();
+    const updatedShiftSwap = await shiftSwap.save();
+    res.json(updatedShiftSwap);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Approve shift swap request by Head
+router.patch('/:id/approve/head', async (req, res) => {
+  try {
+    const shiftSwap = await ShiftSwap.findById(req.params.id);
+    if (!shiftSwap) {
+      return res.status(404).json({ message: 'Shift swap request not found' });
+    }
+
+    shiftSwap.approvers.head = req.body.approverId;
+
+    if (shiftSwap.approvers.head && shiftSwap.approvers.hr && shiftSwap.approvers.board) {
+      shiftSwap.status = 'approved';
+    }
+
+    shiftSwap.updatedAt = Date.now();
+    const updatedShiftSwap = await shiftSwap.save();
+    res.json(updatedShiftSwap);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Approve shift swap request by HR
+router.patch('/:id/approve/hr', async (req, res) => {
+  try {
+    const shiftSwap = await ShiftSwap.findById(req.params.id);
+    if (!shiftSwap) {
+      return res.status(404).json({ message: 'Shift swap request not found' });
+    }
+
+    shiftSwap.approvers.hr = req.body.approverId;
+
+    if (shiftSwap.approvers.head && shiftSwap.approvers.hr && shiftSwap.approvers.board) {
+      shiftSwap.status = 'approved';
+    }
+
+    shiftSwap.updatedAt = Date.now();
+    const updatedShiftSwap = await shiftSwap.save();
+    res.json(updatedShiftSwap);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Approve shift swap request by Board
+router.patch('/:id/approve/board', async (req, res) => {
+  try {
+    const shiftSwap = await ShiftSwap.findById(req.params.id);
+    if (!shiftSwap) {
+      return res.status(404).json({ message: 'Shift swap request not found' });
+    }
+
+    shiftSwap.approvers.board = req.body.approverId;
+
+    if (shiftSwap.approvers.head && shiftSwap.approvers.hr && shiftSwap.approvers.board) {
+      shiftSwap.status = 'approved';
+    }
+
+    shiftSwap.updatedAt = Date.now();
+    const updatedShiftSwap = await shiftSwap.save();
+    res.json(updatedShiftSwap);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -97,7 +155,7 @@ router.delete('/:id', getShiftSwap, async (req, res) => {
 async function getShiftSwap(req, res, next) {
   let shiftSwap;
   try {
-    shiftSwap = await ShiftSwap.findById(req.params.id).populate('requester requestee approvers.user');
+    shiftSwap = await ShiftSwap.findById(req.params.id).populate('requester requestee approvers.head approvers.hr approvers.board');
     if (shiftSwap == null) {
       return res.status(404).json({ message: 'Cannot find shift swap request' });
     }
@@ -108,13 +166,10 @@ async function getShiftSwap(req, res, next) {
   next();
 }
 
-async function getUser(userId) {
-  // Implement logic to get the head of the department for the given userId
-  return null; // Return null as default
-}
 // Additional functions to get approvers
 async function getHead(userId) {
-  return shiftSwaps.approvers.status = "approved"; // Return null as default
+  // Implement logic to get the head of the department for the given userId
+  return null; // Return null as default
 }
 
 async function getHR() {

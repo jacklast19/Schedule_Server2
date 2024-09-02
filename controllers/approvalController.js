@@ -1,6 +1,6 @@
 const Approval = require('../models/Approval');
-const Document = require('../models/Document');
-const Leave = require('../models/Leave');
+const Document = require('../models/document');
+const Leave = require('../models/leave');
 const ShiftSwap = require('../models/ShiftSwap');
 
 // ดึงรายการที่รอการอนุมัติทั้งหมด

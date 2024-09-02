@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
-const jwtSecret = 'schedule_jwt_secret'; // ควรเก็บเป็นความลับและไม่เผยแพร่ในโค้ด
+const jwtSecret = process.env.JWT_SECRET; // ควรเก็บเป็นความลับและไม่เผยแพร่ในโค้ด
 
 // ลงทะเบียน
 router.post('/register', async (req, res) => {
@@ -30,15 +30,20 @@ router.post('/login', async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
-    const token = jwt.sign({ userId: user._id, role: user.role }, jwtSecret, { expiresIn: '1h' });
-    res.json({ 
-      token,
-      username: user.username,
-      role: user.role,
-      department: user.department,
-      firstName: user.firstName,
-      lastName: user.lastName
-    });
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        role: user.role,
+        username: user.username,
+        department: user.department,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        status: user.status
+      },
+      jwtSecret,
+      { expiresIn: '1h' }
+    );
+    res.json({ token });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

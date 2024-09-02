@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Department = require('../models/department');
 const User = require('../models/department');
+const authenticateToken = require('../middleware/authenticateToken');
+const authorizeRoles = require('../middleware/authorizeRoles');
 
 // Get all departments
-router.get('/', async (req, res) => {
+router.get('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), async (req, res) => {
   try {
     const departments = await Department.find().populate('head');
     res.json(departments);
@@ -14,7 +16,7 @@ router.get('/', async (req, res) => {
 });
 
 // Create a new department
-router.post('/', async (req, res) => {
+router.post('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), async (req, res) => {
   const { name, head } = req.body;
   const department = new Department({ name, head });
 
@@ -28,12 +30,12 @@ router.post('/', async (req, res) => {
 });
 
 // Get a single department by ID
-router.get('/:id', getDepartment, (req, res) => {
+router.get('/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), getDepartment, (req, res) => {
   res.json(res.department);
 });
 
 // Update a department by ID
-router.patch('/:id', getDepartment, async (req, res) => {
+router.patch('/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), getDepartment, async (req, res) => {
   const { name, head } = req.body;
   if (name != null) res.department.name = name;
   if (head != null) {
@@ -51,7 +53,7 @@ router.patch('/:id', getDepartment, async (req, res) => {
 });
 
 // Delete a department by ID
-router.delete('/:id', getDepartment, async (req, res) => {
+router.delete('/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), getDepartment, async (req, res) => {
   try {
     await updateUserRole(res.department.head, 'Employee'); // Revert head to Employee role
     await res.department.remove();

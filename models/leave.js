@@ -7,7 +7,13 @@ const LeaveSchema = new mongoose.Schema({
   endDate: { type: Date, required: true },
   reason: { type: String, required: true },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-  approver: { type: String, required: true }, // ผู้อนุมัติ
+  approver: {
+    type: new mongoose.Schema({
+      head: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      hr: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      board: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    }, { _id: false })
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   medicalCertificate: { type: String }, // ใบรับรองแพทย์ ถ้ามี

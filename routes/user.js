@@ -1,21 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
+const authenticateToken = require('../middleware/authenticateToken');
+const authorizeRoles = require('../middleware/authorizeRoles');
 
-// ลงทะเบียนผู้ใช้ใหม่
-router.post('/register', async (req, res) => {
-  const { username, firstName, lastName, password, department } = req.body;
-  try {
-    const user = new User({ username, firstName, lastName, password, department, status: 'pending' });
-    await user.save();
-    res.status(201).json({ message: 'User registered successfully', user });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
 
-// อัพเดตข้อมูลผู้ใช้
-router.patch('/update/:id', async (req, res) => {
+router.patch('/update/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'),async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -41,7 +31,7 @@ router.patch('/update/:id', async (req, res) => {
 });
 
 // ดึงข้อมูลผู้ใช้ที่อยู่ในสถานะ pending
-router.get('/pending', async (req, res) => {
+router.get('/pending',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'),async (req, res) => {
   try {
     const users = await User.find({ status: 'pending' });
     res.json(users);
@@ -51,7 +41,7 @@ router.get('/pending', async (req, res) => {
 });
 
 // ดึงข้อมูลผู้ใช้ที่อยู่ในสถานะ active
-router.get('/active', async (req, res) => {
+router.get('/active',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'),async (req, res) => {
   try {
     const users = await User.find({ status: 'active' });
     res.json(users);
@@ -61,7 +51,7 @@ router.get('/active', async (req, res) => {
 });
 
 // ดึงข้อมูลผู้ใช้ทั้งหมด
-router.get('/', async (req, res) => {
+router.get('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);
@@ -71,7 +61,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get a single user by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -84,7 +74,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Delete a user by ID
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -98,7 +88,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Get a user by username
-router.get('/user/:username', async (req, res) => {
+router.get('/user/:username',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD') ,async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username });
     if (!user) {
@@ -111,7 +101,7 @@ router.get('/user/:username', async (req, res) => {
 });
 
 // Find users by first name
-router.get('/users', (req, res) => {
+router.get('/users',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'),  (req, res) => {
   const firstname = req.query.firstname;
   const condition = firstname ? { firstName: { $regex: new RegExp(`^${firstname}$`, 'i') } } : {};
 
