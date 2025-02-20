@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const DetailOfMonth = require('../models/DetailOfMonth'); // นำเข้าโมเดล
-
+const authenticateToken = require('../middleware/authenticateToken');
+const authorizeRoles = require('../middleware/authorizeRoles');
+const authorizeActiveUser = require('../middleware/authorizeRoles');
 // Get all details of months
 router.get('/', async (req, res) => {
   try {

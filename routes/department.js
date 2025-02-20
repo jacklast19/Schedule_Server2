@@ -4,9 +4,10 @@ const Department = require('../models/department');
 const User = require('../models/department');
 const authenticateToken = require('../middleware/authenticateToken');
 const authorizeRoles = require('../middleware/authorizeRoles');
+const authorizeActiveUser = require('../middleware/authorizeRoles');
 
 // Get all departments
-router.get('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), async (req, res) => {
+router.get('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD','Employee'),authorizeActiveUser(), async (req, res) => {
   try {
     const departments = await Department.find().populate('head');
     res.json(departments);
@@ -16,10 +17,9 @@ router.get('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), asyn
 });
 
 // Create a new department
-router.post('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), async (req, res) => {
+router.post('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD','Employee'),authorizeActiveUser(), async (req, res) => {
   const { name, head } = req.body;
   const department = new Department({ name, head });
-
   try {
     const newDepartment = await department.save();
     await updateUserRole(head, 'Head');

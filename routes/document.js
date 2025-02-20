@@ -4,7 +4,7 @@ const multer = require('multer');
 const Document = require('../models/document');
 const authenticateToken = require('../middleware/authenticateToken');
 const authorizeRoles = require('../middleware/authorizeRoles');
-
+const authorizeActiveUser = require('../middleware/authorizeRoles');
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({

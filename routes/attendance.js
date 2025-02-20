@@ -5,6 +5,9 @@ const fs = require('fs');
 const Attendance = require('../models/Attendance');
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
+const authenticateToken = require('../middleware/authenticateToken');
+const authorizeRoles = require('../middleware/authorizeRoles');
+const authorizeActiveUser = require('../middleware/authorizeRoles');
 
 router.post('/upload', upload.single('file'), (req, res) => {
     const attendanceMap = new Map(); // ใช้ Map เพื่อเก็บ HIPID และข้อมูลที่เกี่ยวข้อง

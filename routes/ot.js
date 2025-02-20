@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const OT = require('../models/ot');
-
+const authenticateToken = require('../middleware/authenticateToken');
+const authorizeRoles = require('../middleware/authorizeRoles');
+const authorizeActiveUser = require('../middleware/authorizeRoles');
 // Get all OT records
 router.get('/', async (req, res) => {
   try {

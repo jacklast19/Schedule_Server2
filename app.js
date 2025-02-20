@@ -55,6 +55,7 @@ const documentRouter = require('./routes/document');
 const shiftSwapRouter = require('./routes/shiftSwap');
 const leaveBalanceRouter = require('./routes/leaveBalance');
 const attendanceRouter = require('./routes/attendance'); 
+const employeeRouter = require('./routes/employee');
 
 app.use('/schedules', scheduleRouter);
 app.use('/typesOfShifts', typeOfShiftRouter);
@@ -69,7 +70,7 @@ app.use('/documents', documentRouter);
 app.use('/shiftSwaps', shiftSwapRouter);
 app.use('/leaveBalances', leaveBalanceRouter);
 app.use('/hip-attendances', attendanceRouter);
-
+app.use('/employees', employeeRouter);
 
 // Start the server
 const port = process.env.port;

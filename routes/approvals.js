@@ -4,6 +4,7 @@ const auth = require('../middlewares/auth');
 const approvalController = require('../controllers/approvalController');
 const authenticateToken = require('../middleware/authenticateToken');
 const authorizeRoles = require('../middleware/authorizeRoles');
+const authorizeActiveUser = require('../middleware/authorizeRoles');
 
 // GET /approvals - ดึงรายการที่รอการอนุมัติทั้งหมด
 router.get('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), auth, approvalController.getPendingApprovals);
