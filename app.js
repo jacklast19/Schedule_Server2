@@ -8,13 +8,14 @@ require('dotenv').config();
 app.use(bodyParser.json());
 
 // CORS middleware configuration
-const corsOptions = {
-  origin: ['http://localhost:8100', 'http://localhost:8081'], // Allow requests from these origins
-  credentials: true,            // Allow sending cookies and authentication headers
-  optionSuccessStatus: 200      // For legacy browser support
-};
+// const corsOptions = {
+//   origin: ['http://localhost:8100', 'http://localhost:8081'], // Allow requests from these origins
+//   credentials: true,            // Allow sending cookies and authentication headers
+//   optionSuccessStatus: 200      // For legacy browser support
+// };
 
-app.use(cors(corsOptions));
+app.use(cors({ origin: '*', credentials: true }));
+// app.use(cors(corsOptions));
 
 // Middleware to allow cross-origin requests
 app.use(function(req, res, next) {
@@ -72,8 +73,11 @@ app.use('/leaveBalances', leaveBalanceRouter);
 app.use('/hip-attendances', attendanceRouter);
 app.use('/employees', employeeRouter);
 
+
+
+
 // Start the server
-const port = process.env.port;
+const port = process.env.PORT || 8080; 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on http://192.168.1.143:${port}`);
 });

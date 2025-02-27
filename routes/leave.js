@@ -1,10 +1,12 @@
+// routes/leave.js
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const Leave = require('../models/leave');
+const Leave = require('../models/leaveRequest');
 const authenticateToken = require('../middleware/authenticateToken');
 const authorizeRoles = require('../middleware/authorizeRoles');
 const authorizeActiveUser = require('../middleware/authorizeRoles');
+const User = require("../models/user")
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -29,16 +31,16 @@ router.get('/', async (req, res) => {
 
 // Create a new leave record
 router.post('/', upload.fields([{ name: 'medicalCertificate', maxCount: 1 }, { name: 'attachments', maxCount: 10 }]), async (req, res) => {
-  const { userId, startDate, endDate, reason, leaveType, department } = req.body;
-  const approver = {
-    head: req.body.approver?.head || null,
-    hr: req.body.approver?.hr || null,
-    board: req.body.approver?.board || null
-  };
+  const { startDate, endDate, reason, leaveType, details } = req.body;
+    const user = await User.findOne({ username: req.body.userId });
+      if (!user) {
+          return res.status(401).json({ message: 'Invalid user' });
+      }
+      const userId = user._id;
   const medicalCertificate = req.files && req.files['medicalCertificate'] ? req.files['medicalCertificate'][0].path : null;
   const attachments = req.files && req.files['attachments'] ? req.files['attachments'].map(file => file.path) : [];
 
-  const leaveRecord = new Leave({ userId, startDate, endDate, reason, leaveType, department, approver, medicalCertificate, attachments });
+  const leaveRecord = new Leave({ userId, startDate, endDate, reason, leaveType, details, medicalCertificate, attachments });
 
   try {
     const newLeaveRecord = await leaveRecord.save();
@@ -55,7 +57,7 @@ router.get('/:id', getLeaveRecord, (req, res) => {
 
 // Update a leave record by ID
 router.patch('/:id', upload.fields([{ name: 'medicalCertificate', maxCount: 1 }, { name: 'attachments', maxCount: 10 }]), async (req, res) => {
-  const { userId, startDate, endDate, reason, status, leaveType, department } = req.body;
+  const { userId, startDate, endDate, reason, status, leaveType, details } = req.body;
   const approver = {
     head: req.body.approver?.head || res.leaveRecord.approver.head,
     hr: req.body.approver?.hr || res.leaveRecord.approver.hr,
@@ -70,7 +72,7 @@ router.patch('/:id', upload.fields([{ name: 'medicalCertificate', maxCount: 1 },
   if (reason != null) res.leaveRecord.reason = reason;
   if (status != null) res.leaveRecord.status = status;
   if (leaveType != null) res.leaveRecord.leaveType = leaveType;
-  if (department != null) res.leaveRecord.department = department;
+  if (details != null) res.leaveRecord.details = details;
   if (medicalCertificate != null) res.leaveRecord.medicalCertificate = medicalCertificate;
   if (attachments.length > 0) res.leaveRecord.attachments = attachments;
 
