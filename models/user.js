@@ -2,18 +2,23 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  password: { type: String, required: true },
-  email: { type: String },
-  department: { type: String, required: true },
-  role: { type: String, enum: ['IT', 'HR', 'Board', 'Head', 'Employee'], default: 'Employee' },
-  status: { type: String, enum: ['active', 'pending', 'disabled', 'inactive'], default: 'pending' },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-  hipId: { type: String } // เพิ่มฟิลด์ hipId
-});
+  username: { type: String, required: true, unique: true },      // ชื่อผู้ใช้สำหรับเข้าสู่ระบบ
+  password: { type: String, required: true },                    // รหัสผ่าน (จะเข้ารหัสใน pre-save)
+  role: { 
+    type: String, 
+    enum: ['IT', 'HR', 'Board', 'Head', 'Employee'], 
+    required: true 
+  },                                                             // สิทธิ์การใช้งานในระบบ
+  department: { type: String },                                  // แผนกที่สังกัด (optional)
+  status: { 
+    type: String, 
+    enum: ['active', 'inactive'], 
+    default: 'inactive' 
+  },                                                             // สถานะของผู้ใช้งาน (เช่น เปิดใช้งาน/ปิดใช้งาน)
+  employeeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },  // อ้างอิง ObjectId ของ Employee
+  createdAt: { type: Date, default: Date.now },                  // วันที่สร้างบัญชีผู้ใช้
+  updatedAt: { type: Date, default: Date.now }                   // วันที่แก้ไขบัญชีผู้ใช้ล่าสุด
+}, { collection: 'user' });
 
 UserSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
