@@ -1,4 +1,5 @@
-
+// ไฟล์ /app.js ใช้สำหรับเริ่มต้น server และเชื่อมต่อ MongoDB
+// โดยใช้ Express.js และ Mongoose  
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -55,7 +56,7 @@ const detailOfMonthRouter = require('./routes/detailOfMonth');
 const departmentRouter = require('./routes/department');
 const roleRouter = require('./routes/role');
 const userRouter = require('./routes/user');
-const authRouter = require('./routes/auth');
+//const authRouter = require('./routes/auth');
 const otRouter = require('./routes/ot');
 const leaveRouter = require('./routes/leave');
 const documentRouter = require('./routes/document');
@@ -74,7 +75,7 @@ app.use('/detailsOfMonths', detailOfMonthRouter);
 app.use('/departments', departmentRouter);
 app.use('/roles', roleRouter);
 app.use('/users', userRouter);
-app.use('/auth', authRouter);
+//app.use('/auth', authRouter);
 app.use('/ot', otRouter);
 app.use('/leaves', leaveRouter);
 app.use('/documents', documentRouter);

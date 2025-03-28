@@ -1,17 +1,15 @@
+//ไฟล์ /routes/user.js เป็นไฟล์ที่เกี่ยวข้องกับการจัดการข้อมูลผู้ใช้
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const Employee = require('../models/Employee'); // Model สำหรับ Employee (หากมีข้อมูลเพิ่มเติม)
+const Employee = require('../models/Employee');
+const bcrypt = require('bcrypt');
 const authenticateToken = require('../middleware/authenticateToken');
 const authorizeRoles = require('../middleware/authorizeRoles');
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
+const JWT_EXPIRES_IN = '8h';
 
-/**
- * สมัครสมาชิก (Register)
- * รับข้อมูล: 
- *  - username, password, confirmPassword, role, department (optional)
- *  - employee: (object) ข้อมูลพนักงาน ถ้ามี ส่งเข้ามาเพื่อนำไปสร้าง record ใน Employee
- */
 router.post('/register', async (req, res) => {
   try {
     const { 
@@ -20,43 +18,45 @@ router.post('/register', async (req, res) => {
       confirmPassword, 
       role, 
       department, 
-      employee 
+      //employeeId // ส่ง ObjectId ของ employee (optional)
     } = req.body;
 
-    // ตรวจสอบข้อมูลที่จำเป็นต้องมี
     if (!username || !password || !confirmPassword || !role) {
       return res.status(400).json({ message: 'กรุณาระบุข้อมูลให้ครบ' });
     }
 
-    // ตรวจสอบความตรงกันของ password กับ confirmPassword
     if (password !== confirmPassword) {
       return res.status(400).json({ message: 'Password และ Confirm Password ไม่ตรงกัน' });
     }
 
-    // ตรวจสอบว่า username นี้มีอยู่แล้วหรือไม่
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({ message: 'Username นี้มีอยู่แล้ว' });
     }
 
-    // ถ้ามีข้อมูล employee ส่งเข้ามา ให้สร้าง record ใน collection Employee
-    let employeeRecord = null;
-    if (employee) {
-      employeeRecord = new Employee(employee);
-      await employeeRecord.save();
+    // ตรวจสอบว่า employeeId ที่ให้มา (ถ้ามี) มีอยู่จริงไหม
+    let employeeRef = null;
+    if (employeeId) {
+      const foundEmployee = await Employee.findById(employeeId);
+      if (!foundEmployee) {
+        return res.status(404).json({ message: 'ไม่พบข้อมูลพนักงานที่ระบุ' });
+      }
+      employeeRef = foundEmployee._id;
     }
 
-    // สร้าง user ใหม่ (รหัสผ่านจะถูกแฮชใน pre-save middleware)
-    const newUser = new User({
+    // ถ้าเป็น board → ไม่ต้องมี employeeId หรือ department
+    const userData = {
       username,
-      password, // จะถูกเข้ารหัสใน pre-save
+      password,
       role,
-      department,
-      status: 'inactive', // ค่าเริ่มต้น อาจแก้เป็น 'pending' ตามนโยบายได้
-      employeeId: employeeRecord ? employeeRecord._id : undefined
-    });
+      status: 'pending',
+      employeeId: role !== 'Board' ? employeeRef : null,
+      department: role !== 'Board' ? department : null
+    };
 
+    const newUser = new User(userData);
     await newUser.save();
+
     res.status(201).json({ message: 'สมัครสมาชิกสำเร็จ', user: newUser });
   } catch (err) {
     console.error(err);
@@ -64,35 +64,51 @@ router.post('/register', async (req, res) => {
   }
 });
 
-/**
- * เข้าสู่ระบบ (Login)
- */
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ message: 'กรุณาระบุ username และ password' });
-    }
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ message: 'ไม่พบผู้ใช้' });
-    }
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'รหัสผ่านไม่ถูกต้อง' });
-    }
-    // หากใช้ JWT สามารถสร้าง token แล้วส่งกลับไปได้
-    res.json({ message: 'เข้าสู่ระบบสำเร็จ', user });
+    
+    const user = await User.findOne({ username }).populate('employeeId');
+    if (!user) return res.status(404).json({ message: 'ไม่พบผู้ใช้งาน' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: 'รหัสผ่านไม่ถูกต้อง' });
+
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        username: user.username,
+        role: user.role,
+        department: user.department || null
+      },
+      process.env.JWT_SECRET || 'dev-secret',
+      { expiresIn: '8h' }
+    );
+
+    return res.json({
+      token,
+      user: {
+        userId: user._id,
+        username: user.username,
+        role: user.role,
+        department: user.department || null,
+        fullName: user.employeeId
+          ? `${user.employeeId.firstName} ${user.employeeId.lastName}`
+          : null,
+        employmentType: user.employeeId?.employmentType || null
+      }
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในระบบ' });
   }
 });
-
+//สิ้นสุด login กับ register
 /**
  * Update user
  * ใช้ middleware authenticateToken และ authorizeRoles สำหรับ role: IT, HR, Board, Head
  */
-router.patch('/update/:id', authenticateToken, authorizeRoles('IT', 'HR', 'Board', 'Head'), async (req, res) => {
+router.patch('/update/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -115,7 +131,7 @@ router.patch('/update/:id', authenticateToken, authorizeRoles('IT', 'HR', 'Board
 /**
  * ดึงข้อมูลผู้ใช้ที่มีสถานะ inactive
  */
-router.get('/inactive', authenticateToken, authorizeRoles('IT', 'HR', 'Board', 'Head'), async (req, res) => {
+router.get('/inactive', async (req, res) => {
   try {
     const users = await User.find({ status: 'inactive' });
     res.json(users);
@@ -127,7 +143,7 @@ router.get('/inactive', authenticateToken, authorizeRoles('IT', 'HR', 'Board', '
 /**
  * ดึงข้อมูลผู้ใช้ที่มีสถานะ active
  */
-router.get('/active', authenticateToken, authorizeRoles('IT', 'HR', 'Board', 'Head'), async (req, res) => {
+router.get('/active', async (req, res) => {
   try {
     const users = await User.find({ status: 'active' });
     res.json(users);

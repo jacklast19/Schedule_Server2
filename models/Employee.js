@@ -1,3 +1,4 @@
+// ไฟล์ /models/Employee.js สำหรับกำหนดโครงสร้างข้อมูลและการทำงานของข้อมูลพนักงาน
 const mongoose = require('mongoose');
 
 const employeeSchema = new mongoose.Schema({
@@ -12,11 +13,17 @@ const employeeSchema = new mongoose.Schema({
   },
   startDate: { type: Date },           // วันที่เริ่มงาน
   endDate: { type: Date },             // วันที่สิ้นสุดการทำงาน (ถ้ามี)
-  HIPID: { type: String },             // เพิ่ม HIPID
-  workStatus: { type: String },        // สถานะการทำงาน (เปลี่ยนจาก status เป็น workStatus)
-  address: { type: String },          // เพิ่ม address
-  salary: { type: Number },           // เพิ่ม salary
-  profileImage: { type: String },     // เก็บชื่อไฟล์รูปภาพ
+  HIPID: { type: String, required: true, unique: true }, // HIPID ใช้เชื่อมกับระบบสแกน
+  workStatus: { type: String },        // สถานะการทำงาน (active, resigned, etc.)
+  employmentType: {                   // ประเภทพนักงาน
+    type: String,
+    enum: ['full-time', 'part-time', 'trial-work'],
+    default: 'trial-work'
+  },
+  birthDate: { type: Date },           // วันเดือนปีเกิด
+  address: { type: String },          // ที่อยู่
+  salary: { type: Number },           // เงินเดือน
+  profileImage: { type: String }      // ชื่อไฟล์รูปภาพ
 }, { timestamps: true });
 
 module.exports = mongoose.model('Employee', employeeSchema);

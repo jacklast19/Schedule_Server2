@@ -1,3 +1,5 @@
+// ไฟล์ /middleware/authenticateToken.js
+
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET; // ใส่ secret key ที่คุณใช้ในการสร้าง JWT
 
