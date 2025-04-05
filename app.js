@@ -53,7 +53,7 @@ db.once('open', () => {
 const scheduleRouter = require('./routes/schedule');
 const typeOfShiftRouter = require('./routes/TypeOfshift');
 const detailOfMonthRouter = require('./routes/detailOfMonth');
-const departmentRouter = require('./routes/department');
+const departmentRoutes = require('./routes/department');
 const roleRouter = require('./routes/role');
 const userRouter = require('./routes/user');
 //const authRouter = require('./routes/auth');
@@ -65,14 +65,16 @@ const leaveBalanceRouter = require('./routes/leaveBalance');
 const attendanceRouter = require('./routes/attendance'); 
 const employeeRouter = require('./routes/employee'); // <--- เพิ่ม employeeRouter
 const shiftRouter = require('./routes/shift');
+const leaveQuotaRouter = require('./routes/leaveQuota'); // <--- เพิ่ม leaveQuotaRouter
 // Static path สำหรับไฟล์ที่อัปโหลด (รูปภาพ)
+
 app.use('/uploads', express.static('uploads'));
 
 // กำหนดเส้นทาง
 app.use('/schedules', scheduleRouter);
 app.use('/typesOfShifts', typeOfShiftRouter);
 app.use('/detailsOfMonths', detailOfMonthRouter);
-app.use('/departments', departmentRouter);
+app.use('/departments', departmentRoutes);
 app.use('/roles', roleRouter);
 app.use('/users', userRouter);
 //app.use('/auth', authRouter);
@@ -84,7 +86,7 @@ app.use('/leaveBalances', leaveBalanceRouter);
 app.use('/hip-attendances', attendanceRouter);
 app.use('/employees', employeeRouter); // <--- เพิ่ม employeeRouter
 app.use('/shifts', shiftRouter);
-
+app.use('/leaveQuotas', leaveQuotaRouter); // <--- เพิ่ม leaveQuotaRouter
 // เริ่มต้น server
 const port = process.env.port || 8080;
 app.listen(port, () => {

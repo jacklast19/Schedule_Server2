@@ -63,5 +63,22 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปเดต' });
   }
 });
+ // GET /employees/head
+// ✅ GET: ดึงพนักงานที่เป็นหัวหน้าแผนก (ไม่ต้อง join กับ user)
+router.get('/head', async (req, res) => {
+  try {
+    const heads = await Employee.find({ position: 'หัวหน้าแผนก' }).select('_id firstName lastName');
+    
+    // รวมชื่อเต็ม
+    const formatted = heads.map(h => ({
+      _id: h._id,
+      name: `${h.firstName} ${h.lastName}`
+    }));
 
+    res.json(formatted);
+  } catch (err) {
+    console.error('เกิดข้อผิดพลาดในการค้นหาหัวหน้าแผนก:', err);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการค้นหา' });
+  }
+});
 module.exports = router;

@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
-const DepartmentSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  head: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true } // หัวหน้าแผนก
+const departmentSchema = new mongoose.Schema({
+  shortName: { type: String, required: true },
+  name: { type: String, required: true },
+  head: { type: String } // เป็นชื่อหัวหน้าแผนกแบบ text
 });
 
-module.exports = mongoose.model('Department', DepartmentSchema);
+module.exports = mongoose.model('Department', departmentSchema);

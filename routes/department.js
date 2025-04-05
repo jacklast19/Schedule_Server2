@@ -1,92 +1,75 @@
 const express = require('express');
 const router = express.Router();
 const Department = require('../models/department');
-const User = require('../models/department');
-const authenticateToken = require('../middleware/authenticateToken');
-const authorizeRoles = require('../middleware/authorizeRoles');
-const authorizeActiveUser = require('../middleware/authorizeRoles');
 
-// Get all departments
-router.get('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD','Employee'),authorizeActiveUser(), async (req, res) => {
+// ✅ CREATE แผนกใหม่
+router.post('/', async (req, res) => {
   try {
-    const departments = await Department.find().populate('head');
+    console.log('📥 ข้อมูลที่รับมา:', req.body);
+
+    const { name, shortName, head } = req.body;
+
+    const department = new Department({ name, shortName, head });
+    await department.save();
+
+    res.status(201).json(department);
+  } catch (err) {
+    console.error('❌ ERROR ขณะบันทึกแผนก:', err);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการเพิ่มแผนก' });
+  }
+});
+
+// ✅ READ ทั้งหมด
+router.get('/', async (req, res) => {
+  try {
+    const departments = await Department.find(); // ❌ remove populate
     res.json(departments);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูลแผนก' });
   }
 });
 
-// Create a new department
-router.post('/',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD','Employee'),authorizeActiveUser(), async (req, res) => {
-  const { name, head } = req.body;
-  const department = new Department({ name, head });
+// ✅ READ รายตัว
+router.get('/:id', async (req, res) => {
   try {
-    const newDepartment = await department.save();
-    await updateUserRole(head, 'Head');
-    res.status(201).json(newDepartment);
+    const dept = await Department.findById(req.params.id); // ❌ remove populate
+    if (!dept) return res.status(404).json({ message: 'ไม่พบแผนก' });
+    res.json(dept);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูลแผนก' });
   }
 });
 
-// Get a single department by ID
-router.get('/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), getDepartment, (req, res) => {
-  res.json(res.department);
-});
-
-// Update a department by ID
-router.patch('/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), getDepartment, async (req, res) => {
-  const { name, head } = req.body;
-  if (name != null) res.department.name = name;
-  if (head != null) {
-    await updateUserRole(res.department.head, 'Employee'); // Revert previous head to Employee role
-    res.department.head = head;
-    await updateUserRole(head, 'Head'); // Update new head role to Head
-  }
-
+// ✅ UPDATE แผนก
+router.put('/:id', async (req, res) => {
   try {
-    const updatedDepartment = await res.department.save();
-    res.json(updatedDepartment);
+    const { name, shortName, head } = req.body;
+
+    // ❌ remove head validation with User
+    const updated = await Department.findByIdAndUpdate(
+      req.params.id,
+      { name, shortName, head },
+      { new: true }
+    );
+
+    if (!updated) return res.status(404).json({ message: 'ไม่พบแผนก' });
+
+    res.json(updated);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปเดตแผนก' });
   }
 });
 
-// Delete a department by ID
-router.delete('/:id',authenticateToken,authorizeRoles('IT', 'HR','BOARD','HEAD'), getDepartment, async (req, res) => {
+// ✅ DELETE แผนก
+router.delete('/:id', async (req, res) => {
   try {
-    await updateUserRole(res.department.head, 'Employee'); // Revert head to Employee role
-    await res.department.remove();
-    res.json({ message: 'Deleted department' });
+    const deleted = await Department.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: 'ไม่พบแผนก' });
+
+    res.json({ message: 'ลบแผนกเรียบร้อย' });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการลบแผนก' });
   }
 });
-
-async function getDepartment(req, res, next) {
-  let department;
-  try {
-    department = await Department.findById(req.params.id).populate('head');
-    if (department == null) {
-      return res.status(404).json({ message: 'Cannot find department' });
-    }
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
-  }
-  res.department = department;
-  next();
-}
-
-async function updateUserRole(userId, role) {
-  try {
-    const user = await User.findById(userId);
-    if (user) {
-      user.role = role;
-      await user.save();
-    }
-  } catch (err) {
-    throw new Error(`Failed to update user role: ${err.message}`);
-  }
-}
 
 module.exports = router;
